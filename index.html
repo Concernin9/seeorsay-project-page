@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SeeOrSay: Evidence-Grounded Video QA with Self-Verified Abstention</title>
+<meta name="description" content="SeeOrSay: evidence-grounded video question answering with self-verified abstention for driving in adverse weather.">
+<meta property="og:title" content="SeeOrSay: Evidence-Grounded Video Question Answering with Self-Verified Abstention">
+<meta property="og:description" content="A benchmark and a method for answering, grounding and declining on real snow, fog, rain and night driving video.">
+<meta property="og:image" content="static/images/paper/teaser.webp">
+<link rel="icon" href="static/images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><b>See</b>Or<i>Say</i></a>
+    <div class="nav-links">
+      <a href="#overview" data-i18n data-zh="概览">Overview</a>
+      <a href="#videos" data-i18n data-zh="视频">Videos</a>
+      <a href="#demo" data-i18n data-zh="解码演示">Demo</a>
+      <a href="#bench" data-i18n data-zh="基准">Benchmark</a>
+      <a href="#method" data-i18n data-zh="方法">Method</a>
+      <a href="#results" data-i18n data-zh="结果">Results</a>
+      <a href="#gallery" data-i18n data-zh="图库">Gallery</a>
+    </div>
+    <button class="lang" id="lang" aria-label="Switch language">中文</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow" data-i18n data-zh="恶劣天气下的驾驶视频问答">Driving video in snow, fog, rain and night</span>
+    <h1 class="title"><span class="s1">See</span><span class="s2">Or</span><span class="s3">Say</span></h1>
+    <p class="subtitle">Evidence-Grounded Video Question Answering with Self-Verified Abstention for Driving in Adverse Weather</p>
+
+    <!-- Authors and affiliations: add here after acceptance (see README). -->
+
+    <div class="buttons">
+      <span class="btn soon" title="Coming soon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/></svg>
+        <span data-i18n data-zh="论文">Paper</span><span class="tag" data-i18n data-zh="即将上线">soon</span></span>
+      <span class="btn soon" title="Coming soon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+        <span data-i18n data-zh="补充材料">Supplementary</span><span class="tag" data-i18n data-zh="即将上线">soon</span></span>
+      <span class="btn soon" title="Released upon acceptance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>
+        <span data-i18n data-zh="代码">Code</span><span class="tag" data-i18n data-zh="接收后开放">upon acceptance</span></span>
+      <span class="btn soon" title="Released upon acceptance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v13c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-13M4.5 12c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5"/></svg>
+        <span data-i18n data-zh="数据">Data</span><span class="tag" data-i18n data-zh="接收后开放">upon acceptance</span></span>
+    </div>
+    <p class="release" data-i18n data-zh="论文接收后开放代码、模型权重和 SeeOrSay-Bench 数据。">Code, model weights and SeeOrSay-Bench will be released upon acceptance.</p>
+
+    <div class="wall" id="wall" data-reveal="2.64">
+      <figure class="tile">
+        <div class="tv">
+          <video autoplay muted loop playsinline preload="auto" poster="static/videos/hero/hero_q1_08.jpg"><source src="static/videos/hero/hero_q1_08.mp4" type="video/mp4"></video>
+          <span class="tkind k-ans" data-i18n data-zh="回答 · 白天雪">Answer · day snow</span>
+        </div>
+        <figcaption><div class="tq">In frame t=4, which numbered pickup truck is blue? (0 if none)</div><div class="ta"><span class="who">SeeOrSay-8B</span><span class="chip ans">2 <b>✓</b></span><span class="tn" data-i18n data-zh="五帧都框住了">tracked over five frames</span></div></figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="tv">
+          <video autoplay muted loop playsinline preload="auto" poster="static/videos/hero/hero_m8_1_06.jpg"><source src="static/videos/hero/hero_m8_1_06.mp4" type="video/mp4"></video>
+          <span class="tkind k-dec" data-i18n data-zh="拒答 · 夜间雪">Decline · night snow</span>
+        </div>
+        <figcaption><div class="tq">Is the white van turning left at t = 6?</div><div class="ta"><span class="who">SeeOrSay-8B</span><span class="chip decl">not visible <b>✓</b></span><span class="tn" data-i18n data-zh="面包车已经离开">the van has left</span></div></figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="tv">
+          <video autoplay muted loop playsinline preload="auto" poster="static/videos/hero/hero_c3_01.jpg"><source src="static/videos/hero/hero_c3_01.mp4" type="video/mp4"></video>
+          <span class="tkind k-rev" data-i18n data-zh="修正 · 白天雪">Revise · day snow</span>
+        </div>
+        <figcaption><div class="tq">Is there a snowplow truck that is turning left at t=3?</div><div class="ta"><span class="who">SeeOrSay-8B</span><span class="chip ans"><s>no</s> → yes <b>✓</b></span><span class="tn" data-i18n data-zh="草稿被判矛盾并改正">draft contradicted, revised</span></div></figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="tv">
+          <video autoplay muted loop playsinline preload="auto" poster="static/videos/hero/hero_c6_02.jpg"><source src="static/videos/hero/hero_c6_02.mp4" type="video/mp4"></video>
+          <span class="tkind k-dec" data-i18n data-zh="拒答 · 夜间雪">Decline · night snow</span>
+        </div>
+        <figcaption><div class="tq">In frame t=3, which numbered SUV is white? (0 if none)</div><div class="ta"><span class="who">SeeOrSay-8B</span><span class="chip decl">not visible <b>✓</b></span><span class="tn" data-i18n data-zh="两辆 SUV 都符合">two SUVs match</span></div></figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="tv">
+          <video autoplay muted loop playsinline preload="auto" poster="static/videos/hero/hero_c4_01.jpg"><source src="static/videos/hero/hero_c4_01.mp4" type="video/mp4"></video>
+          <span class="tkind k-ans" data-i18n data-zh="回答 · 雾">Answer · fog</span>
+        </div>
+        <figcaption><div class="tq">When does the black SUV in the right lane ahead of the camera leave the view? (last visible frame)</div><div class="ta"><span class="who">SeeOrSay-8B</span><span class="chip ans">5 <b>✓</b></span><span class="tn" data-i18n data-zh="t = 5 只剩一条边">the last sliver at t = 5</span></div></figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="tv">
+          <video autoplay muted loop playsinline preload="auto" poster="static/videos/hero/hero_c2_03.jpg"><source src="static/videos/hero/hero_c2_03.mp4" type="video/mp4"></video>
+          <span class="tkind k-ans" data-i18n data-zh="回答 · 雨夹雪">Answer · rain–snow</span>
+        </div>
+        <figcaption><div class="tq">How many SUVs are there at t=2, including any that are hidden?</div><div class="ta"><span class="who">SeeOrSay-8B</span><span class="chip ans">4 <b>✓</b></span><span class="tn" data-i18n data-zh="四辆都框出来了">all four boxed</span></div></figcaption>
+      </figure>
+    </div>
+    <p class="wall-note" data-i18n data-zh="真实测试片段，快速播放。杏色是 SeeOrSay-8B 引用的证据（它所给框的 SAM 2 掩码）；片段回到被问的那一帧时显示它的回答。">Real test clips, played fast. Apricot: the evidence SeeOrSay-8B cites (SAM 2 masks of its boxes); its answer appears when the clip returns to the asked frame.</p>
+  </div>
+</header>
+
+<main>
+<section id="overview">
+  <div class="wrap">
+    <div class="narrow rv">
+      <div class="tldr"><span class="k">TL;DR</span>
+        <div data-i18n data-zh="在雪、雾、雨和夜间的真实行车视频里，一个有用的回答必须指出它看到了什么，而且模型要能说“没看见”。我们提出 <b>SeeOrSay-Bench</b>（每个答案都有像素级证据，含不可回答的问题）和 <b>SeeOrSay</b>：先写草稿答案，框出每一个匹配的候选，再用自检训练过的验证器决定回答、修正还是拒答。">
+          In real snow, fog, rain and night driving video, a useful answer must show <i>what</i> the model saw, and the model must be allowed to say that it saw nothing. We introduce <b>SeeOrSay-Bench</b>, with pixel evidence for every answer and unanswerable questions by construction, and <b>SeeOrSay</b>, which drafts an answer, boxes every matching candidate and lets a self-checked verifier decide to answer, revise or decline.</div>
+      </div>
+    </div>
+    <figure class="fig rv" style="margin-top:22px">
+      <img src="static/images/paper/teaser.webp" alt="Figure 1 of the paper" loading="lazy">
+      <figcaption data-i18n data-zh="<b>看到了再说。</b>(a) 白天雪天、可回答：零样本模型答对了却没有找准证据，“先看再说”基线框对了皮卡却拒答；SeeOrSay 回答并全程跟住目标。(b) 夜间雪天、不可回答：面包车已经离开，SeeOrSay 的草稿答案被它的验证器否决。(c) 公开的指代分割模型掩码很准，但在目标消失的帧上照样给出掩码。(d) 主要结果。">
+        <b>Seeing before saying.</b> (a) Day snow, answerable: the zero-shot model is right without grounding, and the look-then-say model boxes the right pickup and declines; SeeOrSay answers and tracks it. (b) Night snow, unanswerable: the van has left, and SeeOrSay's draft answer is overruled by its verifier. (c) Public referring segmenters produce accurate masks, yet four of five place a mask on 42–99% of the frames in which the target is absent. (d) Main results.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="abstract">
+  <div class="wrap narrow rv">
+    <div class="sec-head"><span class="eyebrow" data-i18n data-zh="摘要">Abstract</span></div>
+    <p class="abstract" data-i18n data-zh="语言驱动的感知在恶劣天气下最被需要，也最不可靠。在真实冬季行车片段上，五个公开指代分割模型中有四个会在目标并不存在的帧里给出掩码，比例高达 42–99%：缺的是“知道自己看到了什么、没看到什么”。我们提出 SeeOrSay-Bench：在雪、雾、雨和夜间的 13,574 段真实行车片段上构建 29,876 个问题，每个答案都有像素级证据，测试集中 17.5% 的问题不可回答（目标消失、被遮挡或有歧义）。在 14 个最大 397B 参数的视觉语言模型上，答对且证据正确的比例最高只有 41%，通用模型几乎从不拒答；微调能补上大部分差距，却学会了按题型拒答。SeeOrSay 让拒答成为证据的结果：模型先写草稿答案，框出每一个匹配的候选，再对照这些候选检验草稿。我们证明只在标准答案序列上训练的验证器看不见它要检查的草稿，因此改为在模型自己的草稿上训练、并用标准答案打标签，把识别错误草稿的 AUROC 从 0.53 提高到 0.93。在 8B 模型、单次解码下，SeeOrSay 比微调基线准确率高 6.5 个点、有证据的准确率高 2.8 个点，识别类问题的误拒几乎减半；在验证结论上加一个阈值后，它能拒答 86% 的不可回答问题（基线 76%），误拒不增加。">
+      Language-driven perception is most needed in adverse weather and least reliable there. On real winter driving clips, four of five public referring segmenters place a mask on 42–99% of the frames in which the target is absent: what is missing is knowing what has and has not been seen. We introduce SeeOrSay-Bench, 29,876 questions on 13,574 real driving clips in snow, fog, rain and night, with pixel evidence for every answer and 17.5% unanswerable test questions (target absent, hidden or ambiguous). Across 14 vision-language models of up to 397B parameters, at most 41% of the answers are correct and grounded, and the general-purpose models decline almost none; fine-tuning closes much of this gap but learns to decline by question type. SeeOrSay makes declining a consequence of the evidence: the model drafts an answer, boxes every matching candidate and verifies the draft against them. We prove that a verifier trained on gold sequences is blind to the draft it checks, and train it instead on the model's own drafts, labelled against the gold; this raises the AUROC of detecting wrong drafts from 0.53 to 0.93. With an 8B backbone and one decoding pass, SeeOrSay improves accuracy by 6.5 and grounded accuracy by 2.8 points over its fine-tuned baseline and nearly halves false abstention on identification questions; with a threshold on its verdict, it declines 86% of the unanswerable questions (baseline: 76%) with no more false abstention.</p>
+  </div>
+</section>
+
+<section id="videos">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="eyebrow" data-i18n data-zh="视频">Videos</span>
+      <h2 data-i18n data-zh="SeeOrSay 在真实片段上">SeeOrSay on real test clips</h2>
+      <p data-i18n data-zh="每段视频按顺序播放一段真实测试片段的 6 帧（杏色是 SeeOrSay-8B 所给框的 SAM 2 掩码），再依次给出三个模型的原样输出：零样本的 Qwen3.5-397B、“先看再说”微调基线和 SeeOrSay-8B 的草稿、验证结论与最终答案。点击可放大。">Each video plays the six frames of a real test clip (apricot: SAM 2 masks of the boxes SeeOrSay-8B cites), then shows the real outputs of Qwen3.5-397B, the look-then-say baseline and SeeOrSay-8B: draft, verdict and final answer. Click to enlarge.</p>
+    </div>
+    <div class="vgrid" id="vgrid"></div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="eyebrow" data-i18n data-zh="解码演示">Interactive</span>
+      <h2 data-i18n data-zh="一次解码：回答、框出每个候选、验证">One pass: answer, look at every candidate, verify</h2>
+      <p data-i18n data-zh="下面逐个 token 重放 SeeOrSay-8B 在四段真实片段上的原样输出。框会在它写出 &lt;look&gt; 时出现在对应的帧上；最后的验证结论决定回答、修正还是拒答。">A token-by-token replay of the real output of SeeOrSay-8B on four test clips. Boxes appear on their frames as the model writes them in &lt;look&gt;; the verdict then decides whether to answer, revise or decline.</p>
+    </div>
+    <div class="demo rv">
+      <div class="tabs" id="dtabs"></div>
+      <div class="demo-q" id="dq"></div>
+      <div class="demo-grid">
+        <div>
+          <div class="dimg"><img id="dmain" alt="asked frame"><span class="tlab" id="dtl"></span></div>
+          <div class="thumbs" id="dthumbs"></div>
+        </div>
+        <div>
+          <div class="console"><div class="lbl" data-i18n data-zh="模型输出（原样）">Model output (verbatim)</div><div id="dcon"></div></div>
+          <div class="decision" id="ddec"></div>
+        </div>
+      </div>
+      <div class="demo-ctl"><span id="dnote"></span><button class="replay" id="dreplay" data-i18n data-zh="重放">Replay</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="bench">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="eyebrow" data-i18n data-zh="基准">Benchmark</span>
+      <h2>SeeOrSay-Bench</h2>
+      <p data-i18n data-zh="由真实冬季行车片段的逐帧目标掩码构建：给每个目标、每一帧标出可见状态；六类模板生成带标准答案和像素证据的问题；去掉不看画面也能答对的问题；每道测试题都经过两位标注员核对。">Built from per-frame target masks of real winter driving clips: a visibility state for every target and frame, templates in six families with gold answers and pixel evidence, blind-answerable questions dropped, and every test question checked by two annotators.</p>
+    </div>
+    <div class="stats rv">
+      <div class="stat"><div class="v">29,876</div><div class="l" data-i18n data-zh="个问题，来自 13,574 段真实片段">questions on 13,574 real clips</div></div>
+      <div class="stat"><div class="v">6</div><div class="l" data-i18n data-zh="类问题：存在、识别、计数、时序、属性、可见性">families: existence, identification, counting, temporal, attributes, visibility</div></div>
+      <div class="stat"><div class="v">4</div><div class="l" data-i18n data-zh="种真实天气：白天雪、夜间雪、雾加雪、雨夹雪">real regimes: day snow, night snow, fog + snow, rain–snow</div></div>
+      <div class="stat"><div class="v">17.5%</div><div class="l" data-i18n data-zh="的测试题不可回答：目标消失、被遮挡或有歧义">of test questions unanswerable: absent, hidden or ambiguous</div></div>
+    </div>
+    <figure class="fig rv">
+      <img src="static/images/paper/bench_pipeline.webp" alt="Benchmark construction" loading="lazy">
+      <figcaption data-i18n data-zh="<b>构建 SeeOrSay-Bench。</b>(1) 带逐帧目标掩码的真实冬季片段；(2) 每帧的可见状态，遮挡物由多模态大模型命名；(3) 六类模板生成带标准答案和证据的问题；(4) 去掉不看画面也能答对的题，两位标注员核对每道测试题。"><b>Building SeeOrSay-Bench.</b> (1) Real winter clips with per-frame target masks. (2) A visibility state per frame; an MLLM names the occluder. (3) Templates in six families give questions with gold answers and evidence. (4) Blind-answerable questions are dropped; two annotators check every test question.</figcaption>
+    </figure>
+    <div class="two" style="margin-top:22px">
+      <div class="tablebox rv">
+        <table class="cmp">
+          <thead><tr><th data-i18n data-zh="基准">Benchmark</th><th data-i18n data-zh="输入">Input</th><th data-i18n data-zh="天气">Weather</th><th data-i18n data-zh="证据">Grounding</th><th data-i18n data-zh="可拒答">Unanswerable</th></tr></thead>
+          <tbody>
+            <tr><td>ACDC</td><td>image</td><td>real</td><td>dense mask</td><td class="x">—</td></tr>
+            <tr><td>DriveLM-nuScenes</td><td>frames</td><td class="x">—</td><td>2D points</td><td class="x">—</td></tr>
+            <tr><td>DriveBench</td><td>image</td><td>synthetic</td><td class="x">—</td><td class="x">—</td></tr>
+            <tr><td>ObsDriveBench</td><td>frames</td><td>real</td><td class="x">—</td><td>sensor</td></tr>
+            <tr><td>NExT-GQA</td><td>video</td><td class="x">—</td><td>time span</td><td class="x">—</td></tr>
+            <tr><td>TOC-Bench</td><td>video</td><td class="x">—</td><td class="x">—</td><td>object</td></tr>
+            <tr class="ours"><td>SeeOrSay-Bench</td><td>video</td><td>real</td><td>mask per frame</td><td>instance</td></tr>
+          </tbody>
+        </table>
+        <p class="tnote" data-i18n data-zh="SeeOrSay-Bench 是唯一在真实恶劣天气视频上，同时检查答案背后的像素证据、并把“看不见”当作正确答案的基准。">SeeOrSay-Bench is the only one that checks the pixel evidence behind each answer and accepts “not visible” as a correct answer, on real adverse-weather video.</p>
+      </div>
+      <figure class="fig rv">
+        <img src="static/images/paper/bench_clips.webp" alt="Test clip statistics" loading="lazy">
+        <figcaption data-i18n data-zh="测试片段的分布：天气、目标尺度、同类干扰物以及目标消失的帧。">Test clips by weather regime, target scale, same-class distractors and frames in which the target is absent.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="eyebrow" data-i18n data-zh="方法">Method</span>
+      <h2 data-i18n data-zh="让拒答成为证据的结果">Declining as a consequence of the evidence</h2>
+      <p data-i18n data-zh="SeeOrSay 不改视频大模型的结构，只改模型写什么、以及它的验证器从什么数据里学。">SeeOrSay keeps the architecture of a fine-tuned video MLLM and changes what the model writes and what its verifier learns from.</p>
+    </div>
+    <figure class="fig rv">
+      <img src="static/images/paper/method.webp" alt="SeeOrSay method" loading="lazy">
+      <figcaption data-i18n data-zh="<b>SeeOrSay。</b>(a) 模型写草稿答案（say）、为每一帧中每一个匹配的候选写一个框（look），再写验证结论（verify），由结论决定回答、修正或拒答；只训练 LoRA 适配器。(b) 自检验证训练：用标准答案给模型自己的草稿打标签，加上反事实交换样本，只在结论和修正的 token 上计算损失。(c) 自检之后，验证器能识别错误草稿和失败的证据。"><b>SeeOrSay.</b> (a) The model writes a draft answer (say), a box for every matching candidate in every frame (look) and a verdict (verify) that routes to answering, revising or declining; only LoRA adapters are trained. (b) Self-checked verification: own drafts labelled by an oracle and counterfactual swap pairs train only the verdict and revision tokens. (c) Self-checked, the verifier flags wrong drafts and failed evidence.</figcaption>
+    </figure>
+    <div class="pillars">
+      <div class="pillar rv"><div class="num">01</div>
+        <h3 data-i18n data-zh="集合式证据">Set-valued evidence</h3>
+        <p data-i18n data-zh="在被问的那一帧里，&lt;look&gt; 为每一个符合描述的候选都写一个框。有歧义就会出现两个以上的框；目标不在，就写 none，并给出最后一次看到它的帧。拒答由此变成证据的直接结果。">In the asked frame, &lt;look&gt; lists a box for <i>every</i> matching candidate. An ambiguous question yields two or more boxes; an absent target yields none, with the last frame it was seen. Declining follows from the cited set.</p>
+        <div class="code"><span class="l">&lt;look&gt;</span> t=3 [0 56 15 100]; t=3 [55 57 85 97] <span class="l">&lt;/look&gt;</span></div></div>
+      <div class="pillar rv"><div class="num">02</div>
+        <h3 data-i18n data-zh="先答后验">Answer-first verification</h3>
+        <p data-i18n data-zh="模型先写出答案和证据，再在同一次解码里写出结论：一致、证据不足、矛盾（随后写出修正）、有歧义或看不见。">The model states its answer and its candidates first, then writes a verdict in the same decoding pass: consistent, unsupported, contradicted (then a revision), ambiguous or not visible.</p>
+        <div class="code"><span class="s">&lt;say&gt;</span> no <span class="s">&lt;/say&gt;</span> <span class="l">&lt;look&gt;</span> t=3 [33 58 53 76] <span class="l">&lt;/look&gt;</span> <span class="v">&lt;verify&gt;</span> contradicted <span class="v">&lt;/verify&gt;</span> <span class="s">&lt;say&gt;</span> yes <span class="s">&lt;/say&gt;</span></div></div>
+      <div class="pillar rv"><div class="num">03</div>
+        <h3 data-i18n data-zh="自检验证训练">Self-checked verification</h3>
+        <p data-i18n data-zh="只在标准答案序列上训练的验证器从没见过错误草稿，可以证明它对草稿是“盲”的（命题 1）。我们改在模型自己的草稿上训练，用标准答案打标签，再加反事实交换样本，只在结论和修正上计算损失（命题 2）。识别错误草稿的 AUROC 从 0.53 升到 0.93。">Trained on gold sequences, a verifier never sees a wrong draft and is provably blind to it (Prop. 1). We train it on the model's own drafts, labelled against the gold, plus counterfactual swaps, with loss on the verdict and revision only (Prop. 2). AUROC for wrong drafts: 0.53 → 0.93.</p>
+        <div class="eq"><span class="eql">gold only</span> <i>I</i>(<i>v</i>; <i>d</i> | <i>x</i>) = 0<br><span class="eql">self-checked</span> <i>I</i>(<i>v</i>; <i>d</i> | <i>x</i>) = <i>H</i>(<i>v</i> | <i>x</i>) &gt; 0</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="eyebrow" data-i18n data-zh="结果">Results</span>
+      <h2 data-i18n data-zh="回答、找准证据、该拒就拒">Answer, ground, and decline</h2>
+      <p data-i18n data-zh="SeeOrSay-Bench 测试集（1,710 题）。GAcc：答案正确且证据 IoU ≥ 0.5；AR / FAR：拒答召回率 / 误拒率；CAS：两者的调和指标。">SeeOrSay-Bench test split (1,710 questions). GAcc: answer correct and evidence IoU ≥ 0.5; AR / FAR: abstention recall / false abstention rate; CAS combines the two.</p>
+    </div>
+    <div class="tablebox rv">
+      <table class="res">
+        <thead><tr><th data-i18n data-zh="模型">Model</th><th data-i18n data-zh="规模">Size</th><th>Acc</th><th>EvIoU</th><th>GAcc</th><th>AR</th><th>FAR ↓</th><th>CAS</th></tr></thead>
+        <tbody>
+          <tr><td class="grp" colspan="8" data-i18n data-zh="零样本">Zero-shot</td></tr>
+          <tr><td>Qwen2.5-VL</td><td>72B</td><td>68.3</td><td>48.6</td><td>36.4</td><td>4.3</td><td>1.0</td><td>8.3</td></tr>
+          <tr><td>Qwen3-VL</td><td>32B</td><td>72.2</td><td>53.6</td><td>40.7</td><td>2.7</td><td>0.6</td><td>5.2</td></tr>
+          <tr><td>InternVL3.5</td><td>38B</td><td>66.1</td><td>10.1</td><td>10.2</td><td>0.7</td><td>0.1</td><td>1.3</td></tr>
+          <tr><td>GLM-4.6V</td><td>106B</td><td>71.2</td><td>51.0</td><td>37.1</td><td>1.0</td><td>0.1</td><td>2.0</td></tr>
+          <tr><td>Qwen3-VL</td><td>235B</td><td>73.6</td><td>47.1</td><td>38.6</td><td>1.3</td><td>0.4</td><td>2.6</td></tr>
+          <tr><td>Qwen3.5</td><td>397B</td><td>73.2</td><td>56.9</td><td>39.6</td><td>2.0</td><td>0.5</td><td>3.9</td></tr>
+          <tr><td>Open-o3-Video</td><td>7B</td><td>43.6</td><td>15.6</td><td>4.6</td><td>3.3</td><td>1.5</td><td>6.5</td></tr>
+          <tr><td>DriveLMM-o1</td><td>8B</td><td>24.4</td><td>3.5</td><td>1.8</td><td>54.2</td><td>44.2</td><td>55.0</td></tr>
+          <tr><td class="grp" colspan="8" data-i18n data-zh="在 SeeOrSay-Bench 上微调">Fine-tuned on SeeOrSay-Bench</td></tr>
+          <tr><td data-i18n data-zh="先看再说（基线）">Look, then say</td><td>7B</td><td>74.7</td><td>73.9</td><td>67.9</td><td>78.3</td><td>9.4</td><td>84.0</td></tr>
+          <tr><td data-i18n data-zh="先看再说（基线）">Look, then say</td><td>8B</td><td>77.4</td><td>76.9</td><td>71.7</td><td>76.3</td><td>9.6</td><td>82.7</td></tr>
+          <tr class="ours"><td>SeeOrSay-7B</td><td>7B</td><td>82.0</td><td>75.0</td><td>70.5</td><td>77.9</td><td>6.5</td><td>85.0</td></tr>
+          <tr class="ours"><td>SeeOrSay-8B</td><td>8B</td><td class="hl">83.9</td><td class="hl">78.0</td><td class="hl">74.5</td><td>76.6</td><td>5.8</td><td>84.5</td></tr>
+          <tr class="ours"><td data-i18n data-zh="SeeOrSay-8B + 阈值">SeeOrSay-8B + threshold</td><td>8B</td><td>80.9</td><td>78.0</td><td>72.9</td><td class="hl">86.0</td><td>9.1</td><td class="hl">88.4</td></tr>
+          <tr><td data-i18n data-zh="人类（200 题）">Human (200 q.)</td><td>—</td><td>90.7</td><td>—</td><td>—</td><td>90.9</td><td>3.8</td><td>93.4</td></tr>
+        </tbody>
+      </table>
+      <p class="tnote" data-i18n data-zh="完整表格包含 14 个零样本模型，见论文表 2。“+ 阈值”：同样的输出，只在验证结论的拒答分数上加一个在验证集上定的阈值。">Selected rows; the paper's Table 2 lists all 14 zero-shot models. “+ threshold”: the same outputs, declining when the verdict's abstention score reaches a threshold set on validation data.</p>
+    </div>
+    <div class="finds">
+      <div class="find rv"><span class="dot" style="background:var(--sky)"></span><b data-i18n data-zh="答对不等于找准。">Answering is not grounding.</b> <span data-i18n data-zh="最强的零样本模型能答对 72–74% 的可回答题，但答对且证据正确的最多只有 41%；从 32B 到 235B 也补不上这个差距。">The best zero-shot models answer 72–74% correctly, but at most 41% with grounded evidence; scale from 32B to 235B does not close the gap.</span></div>
+      <div class="find rv"><span class="dot" style="background:var(--abs)"></span><b data-i18n data-zh="通用模型几乎不拒答。">Models rarely decline.</b> <span data-i18n data-zh="没有一个通用零样本模型能拒答超过 6% 的不可回答题。">No general-purpose zero-shot model declines more than 6% of the unanswerable questions.</span></div>
+      <div class="find rv"><span class="dot" style="background:var(--say)"></span><b data-i18n data-zh="SeeOrSay-8B 全面更好。">SeeOrSay-8B is best on accuracy and grounding.</b> <span data-i18n data-zh="比同底座基线准确率高 6.5、有证据的准确率高 2.8，识别类误拒从 44.0% 降到 23.6%。">+6.5 accuracy and +2.8 grounded accuracy over its fine-tuned baseline; identification false abstention falls from 44.0% to 23.6%.</span></div>
+      <div class="find rv"><span class="dot" style="background:var(--look)"></span><b data-i18n data-zh="自检让验证器真正起作用。">Self-checking makes the verifier work.</b> <span data-i18n data-zh="识别错误草稿的 AUROC 从 0.53 升到 0.93；加一个阈值后能拒答 86% 的不可回答题，误拒不增加。">AUROC for wrong drafts rises from 0.53 to 0.93; with one threshold, 86% of unanswerable questions are declined with no more false abstention.</span></div>
+    </div>
+    <figure class="fig rv" style="margin-top:22px">
+      <img src="static/images/paper/qualitative.webp" alt="Qualitative results" loading="lazy">
+      <figcaption data-i18n data-zh="<b>定性结果</b>，八段真实测试片段：识别（夜间和雪天）；计数和 SUV 最后可见的帧；被验证器判为矛盾并修正的草稿（删除线为被否定的草稿）；两辆相同的 SUV，以及已经驶离的吉普车。"><b>Qualitative results</b> on eight real test clips: identification at night and in snow; counting and the last frame in which an SUV is visible; drafts that the verifier judges contradicted and revises (struck through); two matching SUVs, and a Jeep that has left the view.</figcaption>
+    </figure>
+    <figure class="fig rv" style="margin-top:22px">
+      <img src="static/images/paper/analysis.webp" alt="Analysis" loading="lazy">
+      <figcaption data-i18n data-zh="<b>测试集的十二个视角</b>：证据准确率与答案准确率、模型规模、证据 IoU、拒答与误拒、按天气、尺度、干扰物和题型的拆分，以及我们试过但没有采用的方案。"><b>Twelve views of the test split</b>: grounded vs answer accuracy, model size, evidence IoU, abstention vs false abstention, breakdowns by weather, scale, distractors and family, and alternatives we tried.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="eyebrow" data-i18n data-zh="图库">Gallery</span>
+      <h2 data-i18n data-zh="更多真实例子，包括失败的">More real examples, failures included</h2>
+      <p data-i18n data-zh="全部是真实测试题和模型的原样输出。题型乘天气的网格是每格随机抽取的，不按对错挑选。点击图片可放大。">All real test questions with the real outputs of the models. The family × weather grid is drawn at random per cell, not by outcome. Click to enlarge.</p>
+    </div>
+    <div class="gtabs" id="gtabs">
+      <button class="tab on" data-g="g1" data-i18n data-zh="可回答">Answerable</button>
+      <button class="tab" data-g="g2" data-i18n data-zh="不可回答">Unanswerable</button>
+      <button class="tab" data-g="g3" data-i18n data-zh="题型 × 天气">Family × weather</button>
+      <button class="tab" data-g="g4" data-i18n data-zh="各组件">Components</button>
+      <button class="tab" data-g="g5" data-i18n data-zh="失败案例">Failures</button>
+      <button class="tab" data-g="g6" data-i18n data-zh="所有模型">Every model</button>
+    </div>
+    <div class="gpane on" id="g1"><figure class="fig"><img src="static/images/paper/gallery_answerable.webp" alt="Answerable questions" loading="lazy"><figcaption data-i18n data-zh="可回答问题：Qwen3.5-397B 常常只在一帧上给证据或数错；基线会误拒识别、计数和时序题；最后一行和第二行末尾是验证器修正错误草稿的例子。">Answerable questions: Qwen3.5-397B often cites one frame only or miscounts; the baseline falsely declines identification, counting and temporal questions; the verifier revises wrong drafts in the last cell of row 2 and the last two of row 6.</figcaption></figure></div>
+    <div class="gpane" id="g2"><figure class="fig"><img src="static/images/paper/gallery_unanswerable.webp" alt="Unanswerable questions" loading="lazy"><figcaption data-i18n data-zh="不可回答问题：目标消失、有歧义或被遮挡。Qwen3.5-397B 全都照答；SeeOrSay 拒答，并引用最后看到目标的帧或每一个匹配的候选。">Unanswerable questions (absent, ambiguous, hidden). Qwen3.5-397B answers all of them; SeeOrSay declines, citing the last frame the target was seen or every matching candidate.</figcaption></figure></div>
+    <div class="gpane" id="g3"><figure class="fig"><img src="static/images/paper/gallery_grid.webp" alt="Family by weather grid" loading="lazy"><figcaption data-i18n data-zh="SeeOrSay-8B 在六类题型 × 四种天气上：每格随机抽一道真实测试题，不按结果挑选；24 题中有 4 题答错。">SeeOrSay-8B across six question families and four weather regimes: one real test question per cell, drawn at random; four of the 24 answers are wrong.</figcaption></figure></div>
+    <div class="gpane" id="g4"><figure class="fig"><img src="static/images/paper/gallery_components.webp" alt="Components" loading="lazy"><figcaption data-i18n data-zh="“先看再说”基线框对了候选却拒答的识别题：调整训练数据比例不改变这些拒答；集合式证据能答对其中一部分，SeeOrSay 全部答对。">Identification questions on which the look-then-say model cites the right candidate and still declines: re-weighting does not change this; set-valued evidence answers some, SeeOrSay all of them.</figcaption></figure></div>
+    <div class="gpane" id="g5"><figure class="fig"><img src="static/images/paper/gallery_failures.webp" alt="Failures" loading="lazy"><figcaption data-i18n data-zh="SeeOrSay-8B 的失败：漏数远处的目标；把可回答的题判成歧义；答对了但证据没框到目标；被遮挡或有歧义时仍然作答；修正后仍然错误。">Failures of SeeOrSay-8B: counts that miss distant instances; answerable questions judged ambiguous; right answers with evidence that misses the target; hidden or ambiguous questions answered anyway; revisions that stay wrong.</figcaption></figure></div>
+    <div class="gpane" id="g6"><figure class="fig"><img src="static/images/paper/per_model.webp" alt="Every model" loading="lazy"><figcaption data-i18n data-zh="论文表 2 中的每个模型，按题型和条件拆分的答案准确率、有证据的准确率和误拒率。">Every model of the paper's Table 2, per question family and condition: answer accuracy, grounded accuracy and false abstention.</figcaption></figure></div>
+  </div>
+</section>
+
+<section id="release">
+  <div class="wrap">
+    <div class="release-card rv">
+      <div><h3 data-i18n data-zh="代码、模型与数据">Code, models and data</h3>
+        <p data-i18n data-zh="论文接收后开放代码、模型权重和 SeeOrSay-Bench 数据。">Code, model weights and SeeOrSay-Bench will be released upon acceptance.</p></div>
+      <span class="btn soon"><span data-i18n data-zh="敬请期待">Coming soon</span></span>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="aff">SeeOrSay</div>
+    <div data-i18n data-zh="视频帧来自公开行车记录仪视频（SnowRef-Drive）。页面设计参考了 Nerfies 项目主页。">Video frames are from public dash-camera videos (SnowRef-Drive). Page design inspired by the Nerfies project page.</div>
+  </div>
+</footer>
+
+<div class="lb" id="lb"></div>
+<script src="static/js/data.js"></script>
+<script src="static/js/main.js"></script>
+</body>
+</html>
